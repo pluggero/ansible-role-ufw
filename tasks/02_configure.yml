@@ -1,0 +1,14 @@
+---
+- name: Configure ufw
+  block:
+    - name: Deploy /etc/default/ufw
+      ansible.builtin.template:
+        src: "{{ role_path }}/templates/ufw.j2"
+        dest: /etc/default/ufw
+        mode: "0644"
+        owner: root
+        group: root
+        backup: true
+      become: true
+      notify: Reload ufw
+      when: ufw_manage_config

@@ -1,0 +1,99 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: true
+
+  vars_files:
+    - ../../defaults/main.yml
+    - ../../vars/molecule.yml
+
+  vars:
+    ansible_user: ansible
+    ansible_become_password: ansible
+
+  tasks:
+    - name: Get ufw binary path
+      ansible.builtin.command:
+        cmd: which ufw
+      register: ufw_which
+      changed_when: false
+
+    - name: Assert ufw binary exists
+      ansible.builtin.assert:
+        that:
+          - ufw_which.rc == 0
+        fail_msg: "ufw binary not found via 'which ufw'"
+
+    - name: Get ufw version
+      ansible.builtin.command:
+        cmd: ufw version
+      register: ufw_version_output
+      changed_when: false
+      become: true
+
+    - name: Assert ufw version command succeeded
+      ansible.builtin.assert:
+        that:
+          - ufw_version_output.rc == 0
+        fail_msg: "ufw version command failed"
+
+    - name: Get ufw status
+      ansible.builtin.command:
+        cmd: ufw status verbose
+      register: ufw_status
+      changed_when: false
+      become: true
+
+    - name: Assert ufw is active
+      ansible.builtin.assert:
+        that:
+          - "'Status: active' in ufw_status.stdout"
+        fail_msg: "ufw is not active — expected it to be enabled"
+      when: ufw_enabled
+
+    - name: Assert ufw is inactive
+      ansible.builtin.assert:
+        that:
+          - "'Status: inactive' in ufw_status.stdout"
+        fail_msg: "ufw is active — expected it to be disabled"
+      when: not ufw_enabled
+
+    - name: Get ufw numbered rules
+      ansible.builtin.command:
+        cmd: ufw status numbered
+      register: ufw_rules_output
+      changed_when: false
+      become: true
+
+    - name: Assert SSH allow rule is present
+      ansible.builtin.assert:
+        that:
+          - "'22/tcp' in ufw_rules_output.stdout"
+        fail_msg: "SSH allow rule (port 22/tcp) not found in ufw status"
+
+    - name: Check /etc/default/ufw exists
+      ansible.builtin.stat:
+        path: /etc/default/ufw
+      register: ufw_config_stat
+      when: ufw_manage_config
+
+    - name: Assert /etc/default/ufw exists with correct mode
+      ansible.builtin.assert:
+        that:
+          - ufw_config_stat.stat.exists
+          - ufw_config_stat.stat.mode == "0644"
+        fail_msg: "/etc/default/ufw not found or wrong permissions"
+      when: ufw_manage_config
+
+    - name: Read /etc/default/ufw content
+      ansible.builtin.slurp:
+        src: /etc/default/ufw
+      register: ufw_config_content
+      when: ufw_manage_config
+
+    - name: Assert DEFAULT_INPUT_POLICY is configured correctly
+      ansible.builtin.assert:
+        that:
+          - "('DEFAULT_INPUT_POLICY=\"' + ufw_config.DEFAULT_INPUT_POLICY + '\"') in (ufw_config_content.content | b64decode)"
+        fail_msg: "DEFAULT_INPUT_POLICY not set correctly in /etc/default/ufw"
+      when: ufw_manage_config

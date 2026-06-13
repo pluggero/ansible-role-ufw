@@ -1,0 +1,5 @@
+---
+ufw_dep_pkgs: []
+
+ufw_distro_pkgs:
+  - ufw

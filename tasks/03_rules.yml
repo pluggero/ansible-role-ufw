@@ -1,0 +1,22 @@
+---
+- name: Apply ufw rules
+  block:
+    - name: Apply ufw firewall rules
+      community.general.ufw:
+        rule: "{{ fw_rule.rule }}"
+        to_port: "{{ fw_rule.to_port | default(omit) }}"
+        from_port: "{{ fw_rule.from_port | default(omit) }}"
+        proto: "{{ fw_rule.proto | default(omit) }}"
+        from_ip: "{{ fw_rule.from_ip | default(omit) }}"
+        to_ip: "{{ fw_rule.to_ip | default(omit) }}"
+        interface: "{{ fw_rule.interface | default(omit) }}"
+        direction: "{{ fw_rule.direction | default(omit) }}"
+        log: "{{ fw_rule.log | default(omit) }}"
+        comment: "{{ fw_rule.comment | default(omit) }}"
+        route: "{{ fw_rule.route | default(omit) }}"
+        insert: "{{ fw_rule.insert | default(omit) }}"
+        delete: "{{ fw_rule.delete | default(omit) }}"
+      loop: "{{ ufw_rules }}"
+      loop_control:
+        loop_var: fw_rule
+      become: true

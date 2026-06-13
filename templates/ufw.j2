@@ -1,0 +1,25 @@
+# /etc/default/ufw — Managed by Ansible (pluggero.ufw) — do not edit manually
+
+# Set the default input policy to ACCEPT, DROP, or REJECT.
+DEFAULT_INPUT_POLICY="{{ ufw_config.DEFAULT_INPUT_POLICY | default('DROP') }}"
+
+# Set the default output policy to ACCEPT, DROP, or REJECT.
+DEFAULT_OUTPUT_POLICY="{{ ufw_config.DEFAULT_OUTPUT_POLICY | default('ACCEPT') }}"
+
+# Set the default forward policy to ACCEPT, DROP, or REJECT.
+DEFAULT_FORWARD_POLICY="{{ ufw_config.DEFAULT_FORWARD_POLICY | default('DROP') }}"
+
+# Set the default application policy to ACCEPT, DROP, REJECT, or SKIP.
+DEFAULT_APPLICATION_POLICY="{{ ufw_config.DEFAULT_APPLICATION_POLICY | default('SKIP') }}"
+
+# Set to yes to apply rules to support IPv6.
+IPV6="{{ ufw_config.IPV6 | default('yes') }}"
+
+# By default, ufw only touches its own chains.
+MANAGE_BUILTINS=no
+
+# IPT_SYSCTL: sysctl configuration file used by ufw-init.
+IPT_SYSCTL=/etc/ufw/sysctl.conf
+
+# IPT_MODULES: IPT modules to load (connection tracking modules excluded).
+IPT_MODULES=""

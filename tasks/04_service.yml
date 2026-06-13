@@ -1,0 +1,19 @@
+---
+- name: Manage ufw service
+  block:
+    - name: Set ufw logging level
+      community.general.ufw:
+        logging: "{{ ufw_logging }}"
+      become: true
+
+    - name: Enable ufw
+      community.general.ufw:
+        state: enabled
+      become: true
+      when: ufw_enabled
+
+    - name: Disable ufw
+      community.general.ufw:
+        state: disabled
+      become: true
+      when: not ufw_enabled
