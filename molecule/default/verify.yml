@@ -97,3 +97,35 @@
           - "('DEFAULT_INPUT_POLICY=\"' + ufw_config.DEFAULT_INPUT_POLICY + '\"') in (ufw_config_content.content | b64decode)"
         fail_msg: "DEFAULT_INPUT_POLICY not set correctly in /etc/default/ufw"
       when: ufw_manage_config
+
+    - name: Read /etc/ufw/before.rules content
+      ansible.builtin.slurp:
+        src: /etc/ufw/before.rules
+      register: ufw_before_rules_content
+      become: true
+      when: ufw_nat_rules | selectattr('ip_version', 'equalto', 4) | list | length > 0
+
+    - name: Assert IPv4 NAT block is present in /etc/ufw/before.rules
+      ansible.builtin.assert:
+        that:
+          - "'BEGIN ANSIBLE MANAGED NAT RULES' in (ufw_before_rules_content.content | b64decode)"
+          - "'-A POSTROUTING' in (ufw_before_rules_content.content | b64decode)"
+          - "'MASQUERADE' in (ufw_before_rules_content.content | b64decode)"
+        fail_msg: "IPv4 NAT block not found in /etc/ufw/before.rules"
+      when: ufw_nat_rules | selectattr('ip_version', 'equalto', 4) | list | length > 0
+
+    - name: Read /etc/ufw/before6.rules content
+      ansible.builtin.slurp:
+        src: /etc/ufw/before6.rules
+      register: ufw_before6_rules_content
+      become: true
+      when: ufw_nat_rules | selectattr('ip_version', 'equalto', 6) | list | length > 0
+
+    - name: Assert IPv6 NAT block is present in /etc/ufw/before6.rules
+      ansible.builtin.assert:
+        that:
+          - "'BEGIN ANSIBLE MANAGED NAT RULES' in (ufw_before6_rules_content.content | b64decode)"
+          - "'-A POSTROUTING' in (ufw_before6_rules_content.content | b64decode)"
+          - "'MASQUERADE' in (ufw_before6_rules_content.content | b64decode)"
+        fail_msg: "IPv6 NAT block not found in /etc/ufw/before6.rules"
+      when: ufw_nat_rules | selectattr('ip_version', 'equalto', 6) | list | length > 0
