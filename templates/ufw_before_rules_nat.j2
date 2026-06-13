@@ -1,0 +1,14 @@
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-F POSTROUTING
+{% for rule in ufw_nat_rules if rule.ip_version == 4 %}
+{% if rule.comment is defined and rule.comment %}
+# {{ rule.comment }}
+{% endif %}
+-A {{ rule.chain }}{% if rule.in_interface is defined and rule.in_interface %} -i {{ rule.in_interface }}{% endif %}{% if rule.out_interface is defined and rule.out_interface %} -o {{ rule.out_interface }}{% endif %}{% if rule.protocol is defined and rule.protocol %} -p {{ rule.protocol }}{% endif %}{% if rule.source is defined and rule.source %} -s {{ rule.source }}{% endif %}{% if rule.destination is defined and rule.destination %} -d {{ rule.destination }}{% endif %} -j {{ rule.jump }}{% if rule.to_source is defined and rule.to_source %} --to-source {{ rule.to_source }}{% endif %}{% if rule.to_destination is defined and rule.to_destination %} --to-destination {{ rule.to_destination }}{% endif %}
+
+{% endfor %}
+COMMIT

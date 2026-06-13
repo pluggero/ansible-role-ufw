@@ -37,3 +37,18 @@ ufw_rules:
 #   route: false         # boolean — routed/forwarded traffic
 #   insert: ""           # insert at position (integer)
 #   delete: false        # boolean — delete this rule
+
+# NAT rules — list of rule dicts; 'chain', 'jump', and 'ip_version' are required
+ufw_nat_rules: []
+# Full schema:
+# - chain: POSTROUTING        # PREROUTING | POSTROUTING | OUTPUT
+#   jump: MASQUERADE          # MASQUERADE | SNAT | DNAT | ACCEPT | DROP
+#   ip_version: 4             # 4 | 6
+#   out_interface: ""         # -o <iface>
+#   in_interface: ""          # -i <iface>
+#   source: ""                # -s <CIDR>
+#   destination: ""           # -d <CIDR>
+#   protocol: ""              # tcp | udp | all
+#   to_source: ""             # --to-source (SNAT)
+#   to_destination: ""        # --to-destination (DNAT)
+#   comment: ""               # inserted as # comment above the rule line

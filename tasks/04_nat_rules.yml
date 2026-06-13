@@ -1,0 +1,27 @@
+---
+- name: Manage ufw NAT rules
+  block:
+    - name: Set ufw NAT rule facts
+      ansible.builtin.set_fact:
+        _ufw_nat_rules_ipv4: "{{ ufw_nat_rules | selectattr('ip_version', 'equalto', 4) | list }}"
+        _ufw_nat_rules_ipv6: "{{ ufw_nat_rules | selectattr('ip_version', 'equalto', 6) | list }}"
+
+    - name: Manage NAT block in /etc/ufw/before.rules
+      ansible.builtin.blockinfile:
+        path: /etc/ufw/before.rules
+        marker: "# {mark} ANSIBLE MANAGED NAT RULES"
+        insertbefore: "^\\*filter"
+        block: "{{ lookup('ansible.builtin.template', role_path + '/templates/ufw_before_rules_nat.j2') }}"
+        state: "{{ 'present' if _ufw_nat_rules_ipv4 | length > 0 else 'absent' }}"
+      become: true
+      notify: Reload ufw
+
+    - name: Manage NAT block in /etc/ufw/before6.rules
+      ansible.builtin.blockinfile:
+        path: /etc/ufw/before6.rules
+        marker: "# {mark} ANSIBLE MANAGED NAT RULES"
+        insertbefore: "^\\*filter"
+        block: "{{ lookup('ansible.builtin.template', role_path + '/templates/ufw_before6_rules_nat.j2') }}"
+        state: "{{ 'present' if _ufw_nat_rules_ipv6 | length > 0 else 'absent' }}"
+      become: true
+      notify: Reload ufw

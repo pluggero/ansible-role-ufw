@@ -25,3 +25,17 @@ ufw_rules:
     to_port: "443"
     proto: tcp
     comment: "Allow HTTPS"
+
+ufw_nat_rules:
+  - chain: POSTROUTING
+    jump: MASQUERADE
+    out_interface: eth0
+    source: "10.200.200.0/24"
+    ip_version: 4
+    comment: "Masquerade LAN traffic"
+  - chain: POSTROUTING
+    jump: MASQUERADE
+    out_interface: eth0
+    source: "fd00::/64"
+    ip_version: 6
+    comment: "Masquerade IPv6 LAN traffic"
