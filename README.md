@@ -4,6 +4,16 @@
 
 Installs and configures UFW (Uncomplicated Firewall) on ArchLinux and Debian.
 
+> **Warning:** The default configuration applies no firewall rules. Enabling UFW on a remote system without first adding an SSH allow rule **will lock you out**. Always add an SSH rule before enabling UFW on a remote host:
+>
+> ```yaml
+> ufw_rules:
+>   - rule: allow
+>     to_port: "22"
+>     proto: tcp
+>     comment: "Allow SSH"
+> ```
+
 ## Requirements
 
 **Collections:**
@@ -62,7 +72,7 @@ ufw_rules:
     comment: "Allow SSH"
 ```
 
-List of firewall rules to apply. The `rule` key is required; all others are optional. The default includes an SSH allow rule to prevent operator lockout on first enable.
+List of firewall rules to apply. The `rule` key is required; all others are optional. Defaults to an empty list — no rules are applied automatically. See the warning above about SSH lockout risk.
 
 **Rule dict keys:**
 
