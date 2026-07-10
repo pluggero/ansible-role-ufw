@@ -18,11 +18,12 @@ ufw_config:
   DEFAULT_APPLICATION_POLICY: "SKIP"
 
 # Rules — list of rule dicts; only 'rule' is required
-ufw_rules:
-  - rule: allow
-    to_port: "22"
-    proto: tcp
-    comment: "Allow SSH"
+ufw_rules: []
+# Minimal SSH example (add this to avoid lockout on remote systems):
+# - rule: allow
+#   to_port: "22"
+#   proto: tcp
+#   comment: "Allow SSH"
 # Full schema (all keys optional except 'rule'):
 # - rule: allow          # allow | deny | reject | limit
 #   to_port: "22"        # destination port
