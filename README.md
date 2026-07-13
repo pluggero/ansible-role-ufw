@@ -39,7 +39,7 @@ Installation method. Only `"package"` is supported.
 ufw_enabled: true
 ```
 
-Start UFW and enable it on boot. Set to `false` to disable and stop UFW.
+Controls whether UFW is active and persists across reboots. When `true` (default), enables UFW's rule set and ensures the `ufw` systemd service is enabled and started so rules are re-applied automatically after every boot. When `false`, disables UFW's rule set and ensures the `ufw` systemd service is disabled and stopped.
 
 ```yaml
 ufw_logging: "off"
