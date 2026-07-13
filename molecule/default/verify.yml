@@ -17,6 +17,7 @@
         cmd: which ufw
       register: ufw_which
       changed_when: false
+      become: true
 
     - name: Assert ufw binary exists
       ansible.builtin.assert:
