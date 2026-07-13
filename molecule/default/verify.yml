@@ -59,6 +59,28 @@
         fail_msg: "ufw is active — expected it to be disabled"
       when: not ufw_enabled
 
+    - name: Query ufw.service systemd state
+      ansible.builtin.systemd:
+        name: ufw.service
+      register: ufw_service_status
+      become: true
+
+    - name: Assert ufw.service is enabled and active
+      ansible.builtin.assert:
+        that:
+          - ufw_service_status.status.ActiveState == "active"
+          - ufw_service_status.status.UnitFileState == "enabled"
+        fail_msg: "ufw.service is not enabled+active via systemd — expected enabled/active when ufw_enabled=true"
+      when: ufw_enabled
+
+    - name: Assert ufw.service is disabled and inactive
+      ansible.builtin.assert:
+        that:
+          - ufw_service_status.status.ActiveState != "active"
+          - ufw_service_status.status.UnitFileState == "disabled"
+        fail_msg: "ufw.service is not disabled+inactive via systemd — expected disabled/inactive when ufw_enabled=false"
+      when: not ufw_enabled
+
     - name: Get ufw numbered rules
       ansible.builtin.command:
         cmd: ufw status numbered

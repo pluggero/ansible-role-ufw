@@ -1,6 +1,9 @@
 ---
 - name: Manage ufw service
   block:
+    - name: Flush handlers before managing ufw service
+      ansible.builtin.meta: flush_handlers
+
     - name: Set ufw logging level
       community.general.ufw:
         logging: "{{ ufw_logging }}"
@@ -17,3 +20,19 @@
         state: disabled
       become: true
       when: not ufw_enabled
+
+    - name: Enable and start ufw systemd service
+      ansible.builtin.systemd_service:
+        name: ufw.service
+        enabled: true
+        state: started
+      become: true
+      when: ufw_enabled and ansible_service_mgr == 'systemd'
+
+    - name: Disable and stop ufw systemd service
+      ansible.builtin.systemd_service:
+        name: ufw.service
+        enabled: false
+        state: stopped
+      become: true
+      when: not ufw_enabled and ansible_service_mgr == 'systemd'
